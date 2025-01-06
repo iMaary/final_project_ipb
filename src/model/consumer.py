@@ -11,8 +11,12 @@ class ConsumerAgent(core.Agent):
         self.name = name
         self.budget = budget
         self.usage = initial_usage
-        self.trust_level = 0.5
         self.producers = {}
+        # confidence and distrust coefficients
+        self.alpha = 0.01
+        self.beta = 0.08
+        # for global local accounting
+        self.trust_level = 0.5
 
     def save(self) -> Tuple:
         return (self.uid, self.name, self.budget, self.usage)
@@ -20,13 +24,11 @@ class ConsumerAgent(core.Agent):
     def update_trust_level(self, uid, positive=True):
         curr_producer = self.producers[uid]
         trust_level = curr_producer.trust_level
-        alpha = curr_producer.alpha
-        beta = curr_producer.beta
 
         if positive:
-            curr_producer.trust_level = min(trust_level*(1 + alpha), 1)
+            curr_producer.trust_level = min(trust_level*(1 + self.alpha), 1)
         else:
-            curr_producer.trust_level = max(trust_level*(1 - beta), 0)
+            curr_producer.trust_level = max(trust_level*(1 - self.beta), 0)
 
         return curr_producer.trust_level
     
@@ -38,7 +40,10 @@ class ConsumerAgent(core.Agent):
         best_producer = None
         
         for prod in producers:
-            if prod not in self.producers.keys():
+            if prod in self.producers.keys():
+                self.producers[prod].capacity = producers[prod].capacity
+                self.producers[prod].unit_cost = producers[prod].unit_cost
+            else:
                 self.producers[prod] = ProducerAgent(
                                             producers[prod].uid[0],
                                             producers[prod].uid[2],
@@ -46,17 +51,14 @@ class ConsumerAgent(core.Agent):
                                             producers[prod].unit_cost,
                                             producers[prod].capacity,
                                         )
-            else:
-                self.producers[prod].capacity = producers[prod].capacity
-                self.producers[prod].unit_cost = producers[prod].unit_cost
+                
+            curr_prod = self.producers[prod] # get current producer
+            cost = curr_prod.unit_cost * self.usage # calculate cost
 
-        # Execute Decision
-        for prod in self.producers.values():
-            cost = prod.unit_cost * self.usage # calculate cost
             # Adjust decision based on trust level
-            if prod.trust_level >= 0.5 and cost <= self.budget:
+            if curr_prod.trust_level >= 0.5 and cost <= self.budget:
                 # If trust level is high or medium, make decision as usual
-                producer_scores[prod.uid] = prod.get_score()
+                producer_scores[curr_prod.uid] = curr_prod.get_score()
             else:
                 # If trust level is low, reduce usage regardless of cost
                 """Reduce Usage"""

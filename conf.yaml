@@ -2,4 +2,5 @@ random.seed: 42
 stop.at: 5000
 world.width: 10
 world.height: 10
+csv_name: "result.csv"
 csv_header: ["tick","status","producer_name","old_capacity", "new_capacity","p_trust_level","consumer_uid","producer_uid", "usage", "budget", "unit_cost", "c_trust_level", "score_diff"]

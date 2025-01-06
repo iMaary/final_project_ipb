@@ -65,10 +65,10 @@ class Model:
                 # check if the local choice is significantly better than the collective choice
                 isSelfish, score_diff = compare_scores(local_best_producer, chosen_producer)
                 if(isSelfish):
-                    chosen_producer = local_best_producer                    
-                    consumer.trust_level = max(consumer.trust_level*(1 - chosen_producer.beta), 0)
+                    chosen_producer = producer_cache[local_best_producer.uid]                 
+                    consumer.trust_level = max(consumer.trust_level*(1 - consumer.beta), 0)
                 else:                   
-                    consumer.trust_level = min(consumer.trust_level*(1 + chosen_producer.alpha), 1)
+                    consumer.trust_level = min(consumer.trust_level*(1 + consumer.alpha), 1)
                 
                 old_capacity = chosen_producer.capacity
                 # require slots electricity, success depends on avaliable capacity
@@ -106,7 +106,7 @@ def run():
     args = parser.parse_args()
     params = parameters.init_params(args.parameters_file, args.parameters)
 
-    initialize_csv("result.csv", params['csv_header'])
+    initialize_csv(params['csv_name'], params['csv_header'])
 
     # Run Model
     # ---

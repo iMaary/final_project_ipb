@@ -13,8 +13,6 @@ class ProducerAgent(core.Agent):
         self.capacity = initial_capacity
         # for consumer local accounting
         self.trust_level = 0.5
-        self.alpha = 0.01
-        self.beta = 0.08
         self.failure_prob = 0.15
     
     def save(self) -> Tuple:
