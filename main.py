@@ -31,10 +31,10 @@ class Model:
         rank = comm.Get_rank()
         
         if rank == 0:
-            consumers = read_json_file('utils/data/consumers.json')
+            consumers = read_json_file('utils/data/consumers1000.json')
             add_agents(self, consumers, rank, ConsumerAgent, "name", "budget", "usage")
         elif rank == 1:
-            producers = read_json_file('utils/data/producers.json')
+            producers = read_json_file('utils/data/producers1000.json')
             add_agents(self, producers, rank, ProducerAgent, "name", "unit_cost", "initial_capacity")
 
     def step(self):
